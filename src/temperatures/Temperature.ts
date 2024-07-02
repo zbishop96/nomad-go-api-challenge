@@ -1,8 +1,8 @@
-import { UUID } from "crypto";
+import { UUID } from 'crypto';
 
 export class Temperature {
-    id: UUID
-    deviceId: UUID
-    temperature: number
-    dateTime: Date
+  id: UUID;
+  deviceId: UUID;
+  temperature: number;
+  dateTime: Date;
 }

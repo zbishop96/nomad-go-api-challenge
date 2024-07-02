@@ -11,5 +11,4 @@ describe('TemperaturesController', () => {
 
     controller = module.get<TemperaturesController>(TemperaturesController);
   });
-
 });

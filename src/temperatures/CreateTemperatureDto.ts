@@ -1,6 +1,6 @@
-import { UUID } from "crypto";
+import { UUID } from 'crypto';
 
 export class CreateTemperatureDto {
-    deviceId: UUID
-    temperature: number
+  deviceId: UUID;
+  temperature: number;
 }
