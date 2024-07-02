@@ -75,7 +75,7 @@ First, a device will need to be enrolled with the POST to `/devices`. The body s
 }
 ```
 
-Then, temperature readings can be submitted with the POST to `/temperatures` formatted as:
+The response will include the raw API key and that will be the only time it is available. If authentication guards were in place (see design notes), this key would be required as a bearer token in the authentication header on requests for anything other than enrolling new devices. Then, temperature readings can be submitted with the POST to `/temperatures` formatted as:
 
 ```
 {
