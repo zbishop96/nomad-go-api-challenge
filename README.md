@@ -106,9 +106,9 @@ and the average is returned as:
 
 ## Design Choice Notes
 
-I chose to use NestJS for this as it is more backend / API oriented than NextJS. In a production setting I would've used a relational database like Postgres, but here for the sake of simplicity in config / install I've used an in-memory datastore. The in memory store for devices is a map indexed by `deviceId` to ensure quick lookup when determining if a temperature can bet submitted.
+I chose to use NestJS for this as it is more backend / API oriented than NextJS. In a production setting I would've used a relational database like Postgres, but here for the sake of simplicity in config / install I've used an in-memory datastore. The in memory store for devices is a map indexed by `id` to ensure quick lookup when determining if a temperature can bet submitted.
 
-In enrolling devices I opted to return the raw API key and store a hashed version with the device info. However, I decided to omit the authorization guards as this was a point discussed in the design question and potentially interferes with any automated testing. I've also omitted a rate-limiting guard as it seemed out of scope but was mentioned in the design question.
+In enrolling devices I opted to return the raw API key and store the hash with the device info. However, I decided to omit the authorization guards as this was a point discussed in the design question and potentially interferes with any automated testing. I've also omitted a rate-limiting guard as it seemed out of scope but was mentioned in the design question.
 
 I've implemented an in-memory cache as well which in conjunction with the in-memory datastore doesn't do much to speed things up but acts as a proof of concept. It contains the daily high, low, and average. When a new temperature reading is submitted that is a calendar day in the future or greater, they overwrite the cache. I've based it on calendar day so it is a true daily aggregate and not a rolling aggregate of the last 24 hours.
 

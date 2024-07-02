@@ -25,29 +25,29 @@ export class TemperaturesService {
   async createNewReading(
     temperature: CreateTemperatureDto,
   ): Promise<Temperature> {
-    if (this.deviceService.get(temperature.deviceId)) {
-      const id = randomUUID();
-      const newTemperatureReading = {
-        ...temperature,
-        id: id,
-        dateTime: new Date(),
-      };
-      this.temperatures.set(id, newTemperatureReading);
-      await this.updateCachedValues(newTemperatureReading);
-      return newTemperatureReading;
-    } else {
+    if (!this.deviceService.get(temperature.deviceId)) {
       throw new HttpException(
         'Device is not enrolled.',
         HttpStatus.BAD_REQUEST,
       );
     }
+
+    const id = randomUUID();
+    const newTemperatureReading = {
+      ...temperature,
+      id: id,
+      dateTime: new Date(),
+    };
+    this.temperatures.set(id, newTemperatureReading);
+    await this.updateCachedValues(newTemperatureReading);
+    return newTemperatureReading;
   }
 
   async getAggregation(
     aggregation: 'high' | 'low' | 'average',
   ): Promise<Temperature> {
     if (!this.cacheManager.get(aggregation)) {
-      console.error(`${aggregation} not set`);
+      return undefined;
     } else {
       return await this.cacheManager.get(aggregation);
     }
@@ -55,18 +55,18 @@ export class TemperaturesService {
 
   async getAllAggregation() {
     const currentDate = new Date();
-    let high: Temperature = await this.cacheManager.get('high');
-    let low: Temperature = await this.cacheManager.get('low');
-    let average: TemperatureAverage = await this.cacheManager.get('average');
-    if (this.compareDay(currentDate, high.dateTime)) {
+    let high: Temperature | undefined = await this.cacheManager.get('high');
+    let low: Temperature | undefined = await this.cacheManager.get('low');
+    let average: TemperatureAverage | undefined = await this.cacheManager.get('average');
+    if (high && this.compareDay(currentDate, high.dateTime)) {
       await this.cacheManager.del('high');
       high = undefined;
     }
-    if (this.compareDay(currentDate, low.dateTime)) {
+    if (low && this.compareDay(currentDate, low.dateTime)) {
       await this.cacheManager.del('low');
       low = undefined;
     }
-    if (this.compareDay(currentDate, average.dateTime)) {
+    if (average && this.compareDay(currentDate, average.dateTime)) {
       await this.cacheManager.del('average');
       average = undefined;
     }
