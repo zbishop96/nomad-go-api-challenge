@@ -7,6 +7,12 @@ import { Cache } from 'cache-manager';
 import * as _ from 'lodash';
 import { CreateTemperatureDto } from './CreateTemperatureDto';
 
+export interface TemperatureAverage {
+  temperature: number;
+  dateTime: Date;
+  numReadings: number;
+}
+
 @Injectable()
 export class TemperaturesService {
   constructor(
@@ -48,11 +54,39 @@ export class TemperaturesService {
   }
 
   async getAllAggregation() {
+    const currentDate = new Date();
+    let high: Temperature = await this.cacheManager.get('high');
+    let low: Temperature = await this.cacheManager.get('low');
+    let average: TemperatureAverage = await this.cacheManager.get('average');
+    if (this.compareDay(currentDate, high.dateTime)) {
+      await this.cacheManager.del('high');
+      high = undefined;
+    }
+    if (this.compareDay(currentDate, low.dateTime)) {
+      await this.cacheManager.del('low');
+      low = undefined;
+    }
+    if (this.compareDay(currentDate, average.dateTime)) {
+      await this.cacheManager.del('average');
+      average = undefined;
+    }
+
     return {
-      high: await this.cacheManager.get('high'),
-      low: await this.cacheManager.get('low'),
-      average: await this.cacheManager.get('average'),
+      high: high,
+      low: low,
+      average: average,
     };
+  }
+
+  compareDay(date: Date, otherDate: Date): boolean {
+    return (
+      new Date(date.getFullYear(), date.getMonth(), date.getDate()) >
+      new Date(
+        otherDate.getFullYear(),
+        otherDate.getMonth(),
+        otherDate.getDate(),
+      )
+    );
   }
 
   async updateCachedValues(temperature: Temperature) {
@@ -60,22 +94,12 @@ export class TemperaturesService {
       await this.cacheManager.get('high');
     const cachedLow: Temperature | undefined =
       await this.cacheManager.get('low');
-    const cachedAverage:
-      | { temperature: number; date: Date; numReadings: number }
-      | undefined = await this.cacheManager.get('average');
+    const cachedAverage: TemperatureAverage | undefined =
+      await this.cacheManager.get('average');
     if (
       !cachedHigh ||
       temperature.temperature > cachedHigh.temperature ||
-      new Date(
-        temperature.dateTime.getFullYear(),
-        temperature.dateTime.getMonth(),
-        temperature.dateTime.getDate(),
-      ) >
-        new Date(
-          cachedHigh.dateTime.getFullYear(),
-          cachedHigh.dateTime.getMonth(),
-          cachedHigh.dateTime.getDate(),
-        )
+      this.compareDay(temperature.dateTime, cachedHigh.dateTime)
     ) {
       this.cacheManager.set('high', temperature, 0);
     }
@@ -83,48 +107,28 @@ export class TemperaturesService {
     if (
       !cachedLow ||
       temperature.temperature < cachedLow.temperature ||
-      new Date(
-        temperature.dateTime.getFullYear(),
-        temperature.dateTime.getMonth(),
-        temperature.dateTime.getDate(),
-      ) >
-        new Date(
-          cachedLow.dateTime.getFullYear(),
-          cachedLow.dateTime.getMonth(),
-          cachedLow.dateTime.getDate(),
-        )
+      this.compareDay(temperature.dateTime, cachedLow.dateTime)
     ) {
       this.cacheManager.set('low', temperature, 0);
     }
 
     if (
       !cachedAverage ||
-      new Date(
-        temperature.dateTime.getFullYear(),
-        temperature.dateTime.getMonth(),
-        temperature.dateTime.getDate(),
-      ) >
-        new Date(
-          cachedAverage.date.getFullYear(),
-          cachedAverage.date.getMonth(),
-          cachedAverage.date.getDate(),
-        )
+      this.compareDay(temperature.dateTime, cachedAverage.dateTime)
     ) {
       await this.cacheManager.set(
         'average',
         {
           temperature: temperature.temperature,
-          date: temperature.dateTime,
+          dateTime: temperature.dateTime,
           numReadings: 1,
         },
         0,
       );
     } else {
-      const average = (await this.cacheManager.get('average')) as {
-        temperature: number;
-        date: Date;
-        numReadings: number;
-      };
+      const average = (await this.cacheManager.get(
+        'average',
+      )) as TemperatureAverage;
       const newAverage =
         (average.numReadings * average.temperature + temperature.temperature) /
         (average.numReadings + 1);
@@ -132,7 +136,7 @@ export class TemperaturesService {
         'average',
         {
           temperature: newAverage,
-          date: temperature.dateTime,
+          dateTime: temperature.dateTime,
           numReadings: average.numReadings + 1,
         },
         0,
