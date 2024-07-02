@@ -1,8 +1,6 @@
 import { UUID } from "crypto";
 
-export class Temperature {
-    id: UUID
+export class CreateTemperatureDto {
     deviceId: UUID
     temperature: number
-    dateTime: Date
 }

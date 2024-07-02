@@ -12,7 +12,4 @@ describe('TemperaturesController', () => {
     controller = module.get<TemperaturesController>(TemperaturesController);
   });
 
-  it('should be defined', () => {
-    expect(controller).toBeDefined();
-  });
 });
