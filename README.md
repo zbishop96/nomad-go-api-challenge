@@ -27,17 +27,18 @@ A weather monitoring system API that takes in temperature readings from devices 
 | `deviceId`    | `string` | **Required**. A UUID identifying the device        |
 | `temperature` | `number` | **Required**. The temperature reading in farenheit |
 
+#### Retrieve all aggregate values for the current day
+
 ```
   GET /temperatures/daily
 ```
-
-Provides the current day's high, low, and average temperatures.
+#### Retrieve a specific aggregate value for the current day
 
 ```
   GET /temperatures/daily/{'high'|'low'|'average'}
 ```
 
-Provides a specific aggregated value.
+
 
 ## Installation and Setup
 
@@ -47,7 +48,7 @@ I am using Node version 22.3.0 and npm version 10.8.1 in case you run into any c
 
 Once you have Node installed and have navigated to the root of the project, run the following:
 
-```bash
+```
   npm i
   npm run start
 ```
@@ -58,7 +59,7 @@ The API should now be running on `localhost:3000` but if that port is already in
 
 To run tests, run the following command
 
-```bash
+```
   npm run test
 ```
 
