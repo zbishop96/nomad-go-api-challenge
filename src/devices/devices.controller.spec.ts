@@ -34,4 +34,8 @@ describe('DevicesController', () => {
     expect(result.longitude).toEqual(testValidDevice.longitude);
     expect(result.apiKey).toBeDefined();
   });
+
+  it('should reject a device with invalid latitude or longitude', async () => {
+    await expect(controller.enrollDevice(testInvalidDevice)).rejects.toThrow();
+  });
 });
