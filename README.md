@@ -113,5 +113,3 @@ In enrolling devices I opted to return the raw API key and store the hash with t
 I've implemented an in-memory cache as well which in conjunction with the in-memory datastore doesn't do much to speed things up but acts as a proof of concept. It contains the daily high, low, and average. When a new temperature reading is submitted that is a calendar day in the future or greater, they overwrite the cache. I've based it on calendar day so it is a true daily aggregate and not a rolling aggregate of the last 24 hours.
 
 Another omission was the use of Zod. Zod is a schema validation package that effectively allows you to do runtime type checking. While incredibly useful, a project this small wouldn't benefit from it enough for the effort required.
-
-

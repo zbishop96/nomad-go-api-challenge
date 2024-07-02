@@ -57,7 +57,8 @@ export class TemperaturesService {
     const currentDate = new Date();
     let high: Temperature | undefined = await this.cacheManager.get('high');
     let low: Temperature | undefined = await this.cacheManager.get('low');
-    let average: TemperatureAverage | undefined = await this.cacheManager.get('average');
+    let average: TemperatureAverage | undefined =
+      await this.cacheManager.get('average');
     if (high && this.compareDay(currentDate, high.dateTime)) {
       await this.cacheManager.del('high');
       high = undefined;
